@@ -232,7 +232,7 @@ def save_simulation_data(simulation_num, seed_value, data_log):
         filename,
         bot_grid = [entry["bot_prob_grid"] for entry in data_log],
         rat_grid = [entry["rat_prob_grid"] for entry in data_log],
-        remaining_steps = [entry["remaining_steps"] for entry in data_log]
+        time_step = [entry["t"] for entry in data_log]
     )
     print(f"Simulation data saved to {filename}")
 
