@@ -230,13 +230,13 @@ def save_simulation_data(simulation_num, seed_value, data_log):
     filename = f"simulation_{simulation_num}_seed_{seed_value}.npz"
     np.savez_compressed(
         filename,
-        grids = [entry["bot_pos_prob"] for entry in data_log],
-        prob_grids = [entry["prob_grid"] for entry in data_log],
+        bot_grid = [entry["bot_prob_grid"] for entry in data_log],
+        rat_grid = [entry["rat_prob_grid"] for entry in data_log],
         remaining_steps = [entry["remaining_steps"] for entry in data_log]
     )
     print(f"Simulation data saved to {filename}")
 
-def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, driver_comparison):
+def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, driver_comparison, data_log):
     frames_grid = []
     grid_for_map = np.copy(grid)
     frames_grid.append(np.copy(grid_for_map))
@@ -246,6 +246,7 @@ def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, 
     quadrants = partition_grid(grid_for_map, n)
     t=0
     current_quadrant = None
+    bot_prob_grid = data_log[-1]['bot_prob_grid']
     sensing = 0
     moving = 0
     waiting = 0
@@ -261,7 +262,9 @@ def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, 
         print(f"Weighted center of {target_quadrant}: {target_cell}")
 
         data_log.append({
-            "bot_pos"
+            "t": t,
+            "bot_prob_grid": bot_prob_grid,
+            "rat_prob_grid": np.copy(prob_grid)
         })
 
         if target_cell and 0 <= target_cell[0] < n and 0 <= target_cell[1] < n and grid_for_map[target_cell[0]][target_cell[1]] != -1:
@@ -336,7 +339,12 @@ def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, 
             frames_grid.append(np.copy(grid_for_map))
             if not driver_comparison:
                 visualize_simulation_1(frames_grid)
-            return True
+            total_steps = len(data_log)
+            for i, entry in enumerate(data_log):
+                entry["remaining_steps"] = total_steps - i - 1
+
+            save_simulation_data(simulation_num, seed_value, data_log)
+            return data_log
         
         if t>2000:
             print("timeout")

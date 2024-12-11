@@ -1,11 +1,12 @@
 import env_utils
 import numpy as np
 
+#Generating a list of open_cells
 def list_open_cells(grid, n):
     open_list = []
     for i in range(n):
         for j in range(n):
-            if grid[i][j] == 0 or grid[i][j] == 3:
+            if grid[i][j] == 0 or grid[i][j]==3:
                 open_list.append((i,j))
     return open_list
 
@@ -18,15 +19,15 @@ def list_rat_poss_cells(grid, n):
     return rat_list
 
 def init_prob_cells(grid, n, list_poss_cells):
-    new_grid = np.zeros((n,n), dtype=float)
+    new_grid = np.zeros_like(grid, dtype=float)
     num_possible_cells = len(list_poss_cells)
-    init_value = 1.0 / num_possible_cells
+    init_value = 1/num_possible_cells
     for cell in list_poss_cells:
-        new_grid[cell[0], cell[1]] = init_value
+        new_grid[cell[0]][cell[1]] = init_value
     return new_grid
 
 def sensing_neighbours_blocked(grid, bot_pos, n):
-    cardinality = [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]
+    cardinality = [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1, 1), (-1,-1)]
     blocked_cells = 0
     for ci, cj in cardinality:
         test_i, test_j = bot_pos[0]+ci, bot_pos[1]+cj
@@ -73,7 +74,7 @@ def check_common_direction(bot_kb, grid, last_move_direction, n):
     if last_move_direction:
         forbidden_dir = opposite_direction[last_move_direction]
         if len([d for d in directions if directions[d]>0])>1:
-            directions[forbidden_dir] = -1
+            directions[forbidden_dir] = -1 # so that it doesn't come in max
     return max(directions, key=directions.get)
 
 def attempt_movement(dir_check, grid, bot_pos, n):
@@ -95,8 +96,8 @@ def attempt_movement(dir_check, grid, bot_pos, n):
         if grid[test_i][test_j] == 2:
             print("The bot caught the rat!")
         grid[test_i][test_j] = 3
-        return True, bot_pos
-
+        return True, bot_pos 
+    
 def update_kb_movement(move_check, dir_check, bot_kb, grid, n):
     updated_kb_moves = []
     direction_offset = {
@@ -119,95 +120,73 @@ def update_kb_movement(move_check, dir_check, bot_kb, grid, n):
             if not movement_possible:
                 updated_kb_moves.append(i)
     return updated_kb_moves
-
+        
 def main_function(grid, n, bot_pos):
     print(f"Original bot position that simulation knows: {bot_pos}")
-    
-    # Initial sets of possible cells
+    open_list = list_open_cells(grid, n)
     init_open_list = list_open_cells(grid, n)
+    bot_prob_grid = {cell: 1.0/len(init_open_list) for cell in init_open_list}
     rat_cells = list_rat_poss_cells(grid, n)
-
-    # Create bot_prob_grid as a full n x n array with probabilities only in open cells
-    bot_prob_grid = np.zeros((n,n), dtype=float)
-    if len(init_open_list) > 0:
-        initial_prob = 1.0 / len(init_open_list)
-        for cell in init_open_list:
-            bot_prob_grid[cell[0], cell[1]] = initial_prob
-
-    # Create rat_prob_grid similarly
     rat_prob_grid = init_prob_cells(grid, n, rat_cells)
-
     data_log = []
     t = 0
     blocked_sensing = 0
     direction_sensing = 0
     last_move_direction = None
-    bot_kb = init_open_list
+    bot_kb = open_list
     print(f"The length of the Initial Bot Knowledge base: {len(bot_kb)}")
-
     blocked_check = True
     while len(bot_kb) > 1:
         if blocked_check:
-            # Perform blocked sensing logic
             blocked = sensing_neighbours_blocked(grid, bot_pos, n) 
             bot_kb = update_kb_blocked(bot_kb, blocked, grid, n)
-            
-            # Update bot_prob_grid based on the new bot_kb
-            bot_prob_grid[:] = 0.0
-            if len(bot_kb) > 0:
-                new_prob = 1.0 / len(bot_kb)
-                for cell in bot_kb:
-                    bot_prob_grid[cell[0], cell[1]] = new_prob
-
-            blocked_sensing += 1
+            new_bot_prob_grid = {}
+            for cell in init_open_list:
+                if cell in bot_kb:
+                    new_bot_prob_grid[cell] = 1.0 / len(bot_kb)
+                else:
+                    new_bot_prob_grid[cell] = 0.0
+            bot_prob_grid = new_bot_prob_grid
+            blocked_sensing+=1
             print(f"Number of blocked cells: {blocked}")
             print(f"Length of kb after sensing blocked neighbours: {len(bot_kb)}")
             print("End of blocked check")
-            print(f"Knowledge base after block check:\n{bot_kb}")
-
-        else:
-            # Perform direction checking and movement logic
+            print(f"Knowldege base after block check:\n{bot_kb}")
+        if not blocked_check:
             print("Checking in directions")
             dir_check = check_common_direction(bot_kb, grid, last_move_direction, n)
             print(f"The most common dir: {dir_check}")
+            # We will also move the bot if possible
             move_check, bot_pos = attempt_movement(dir_check, grid, bot_pos, n)
             print(f"Movement in {dir_check} is {move_check}")
             print(f"New pos: {bot_pos}")
             bot_kb = update_kb_movement(move_check, dir_check, bot_kb, grid, n)
-
-            # Update bot_prob_grid based on new bot_kb
-            bot_prob_grid[:] = 0.0
-            if len(bot_kb) > 0:
-                new_prob = 1.0 / len(bot_kb)
-                for cell in bot_kb:
-                    bot_prob_grid[cell[0], cell[1]] = new_prob
-
+            new_bot_prob_grid = {}
+            for cell in init_open_list:
+                if cell in bot_kb:
+                    new_bot_prob_grid[cell] = 1.0 / len(bot_kb)
+                else:
+                    new_bot_prob_grid[cell] = 0.0
+            bot_prob_grid = new_bot_prob_grid
             print(f"New length of kb: {len(bot_kb)}")
             if move_check:
                 last_move_direction = dir_check
-            print(f"Knowledge base after direction check:\n{bot_kb}")
-            direction_sensing += 1
-
+            print(f"Knowldege base after direction check:\n{bot_kb}")
+            direction_sensing+=1
         if len(bot_kb) == 0:
             print("Error: No possible positions remain in the knowledge base.")
             break
-
-        # Switch between blocked and direction checks
+        #To keep switching between the block check and direction check
         blocked_check = not blocked_check
         print(f"Before next time step: length kb: {len(bot_kb)}")
-
-        # Log the current probability grids
+        t+=1
         data_log.append({
             "t": t,
             "bot_prob_grid": bot_prob_grid.copy(),
             "rat_prob_grid": rat_prob_grid.copy()
         })
-
-        t += 1
-
-    if len(bot_kb) == 1:
+    if len(bot_kb)==1:
         print(f"Remaining KB: {bot_kb[0]}\n Bot Pos: {bot_pos}")
-
     print(f"Time Steps taken: {t}")
     print(f"Number of Blocked cells sensing actions: {blocked_sensing}")
     print(f"Number of direction sensing actions: {direction_sensing}")
