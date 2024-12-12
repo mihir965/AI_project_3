@@ -4,7 +4,6 @@ import sys
 import os
 import numpy as np
 import random
-from Bot import *
 from Bot_Improved import *
 import csv
 from collections import defaultdict

@@ -1,6 +1,6 @@
 import numpy as np
 
-filename = "simulation_5_seed_784.npz"
+filename = "seed_457.npz"
 
 data = np.load(filename)
 print("Keys in the .npz file:", data.files)

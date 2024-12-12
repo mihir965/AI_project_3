@@ -343,7 +343,7 @@ def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, 
             for i, entry in enumerate(data_log):
                 entry["remaining_steps"] = total_steps - i - 1
 
-            save_simulation_data(simulation_num, seed_value, data_log)
+            # save_simulation_data(simulation_num, seed_value, data_log)
             return data_log
         
         if t>2000:
