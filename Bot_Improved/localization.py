@@ -1,5 +1,6 @@
 import env_utils
 import numpy as np
+import random
 
 def list_open_cells(grid, n):
     open_list = []
@@ -146,7 +147,7 @@ def main_function(grid, n, bot_pos):
     print(f"The length of the Initial Bot Knowledge base: {len(bot_kb)}")
 
     blocked_check = True
-    while len(bot_kb) > 1:
+    while len(bot_kb) > 1 and t < 1000:
         if blocked_check:
             # Perform blocked sensing logic
             blocked = sensing_neighbours_blocked(grid, bot_pos, n) 
@@ -204,6 +205,21 @@ def main_function(grid, n, bot_pos):
         })
 
         t += 1
+        print(f"Time step: {t}")
+        # print(bot_prob_grid)
+    
+    # for i, entry in enumerate(data_log):
+    #     entry["remaining_steps"] = t - i - 1
+
+    # filename = f"./data/localization_{random.randint(0,10000)}.npz"
+    # np.savez_compressed(
+    #     filename,
+    #     bot_grid = [entry["bot_prob_grid"] for entry in data_log],
+    #     time_step_remaining = [entry["remaining_steps"] for entry in data_log]
+    # )
+
+    if t==1000 or t>1000:
+        return False, False
 
     if len(bot_kb) == 1:
         print(f"Remaining KB: {bot_kb[0]}\n Bot Pos: {bot_pos}")

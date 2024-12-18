@@ -1,0 +1,17 @@
+setup.py
+Bot_Improved/__init__.py
+Bot_Improved/localization.py
+Bot_Improved/rat_catching_improved.py
+Bot_Improved/rat_moving_improved.py
+ai_proj_3.egg-info/PKG-INFO
+ai_proj_3.egg-info/SOURCES.txt
+ai_proj_3.egg-info/dependency_links.txt
+ai_proj_3.egg-info/top_level.txt
+models/__init__.py
+models/model.py
+scripts/__init__.py
+scripts/test.py
+scripts/train.py
+scripts/train_additional.py
+utils/__init__.py
+utils/dataset.py

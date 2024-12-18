@@ -236,7 +236,7 @@ def save_simulation_data(simulation_num, seed_value, data_log):
     )
     print(f"Simulation data saved to {filename}")
 
-def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, driver_comparison, data_log):
+def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, data_log, driver_comparison): # data_log
     frames_grid = []
     grid_for_map = np.copy(grid)
     frames_grid.append(np.copy(grid_for_map))
@@ -247,6 +247,8 @@ def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, 
     t=0
     current_quadrant = None
     bot_prob_grid = data_log[-1]['bot_prob_grid']
+    print(f"initial check of grid:\n{bot_prob_grid}")
+    data_log = []
     sensing = 0
     moving = 0
     waiting = 0
@@ -266,6 +268,8 @@ def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, 
             "bot_prob_grid": bot_prob_grid,
             "rat_prob_grid": np.copy(prob_grid)
         })
+
+        # print(f"The time step is {t}\nThe Prob grid is: \n{prob_grid}")
 
         if target_cell and 0 <= target_cell[0] < n and 0 <= target_cell[1] < n and grid_for_map[target_cell[0]][target_cell[1]] != -1:
             if target_quadrant==current_quadrant:
@@ -291,6 +295,10 @@ def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, 
                     else:
                         continue
                 bot_pos, frames_grid, t, moving = movement(grid_for_map, target_cell, bot_pos, n, frames_grid, rat_pos, t, moving)
+                if not bot_pos:
+                    print("No path to target cell. Likely a fail run")
+                    t+=1
+                    break
                 refined_quadrants = refine_quadrants(target_quadrant, quadrants[target_quadrant], n)
                 if refined_quadrants:
                     del quadrants[target_quadrant]
@@ -321,7 +329,9 @@ def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, 
                     else:
                         continue
                 bot_pos, frames_grid, t, moving = movement(grid_for_map, target_cell, bot_pos, n, frames_grid, rat_pos, t, moving)
-                if bot_pos==False:
+                if not bot_pos:
+                    print("No path to target cell. Likely a fail run")
+                    t+=1
                     break
                 current_quadrant = target_quadrant
         else:
@@ -352,5 +362,6 @@ def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, 
             if not driver_comparison:
                 visualize_simulation_1(frames_grid)
             return False
+    return False
         
         #Removed frames grid from return to get only True or false
