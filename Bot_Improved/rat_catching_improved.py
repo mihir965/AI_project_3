@@ -350,8 +350,12 @@ def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, 
             if not driver_comparison:
                 visualize_simulation_1(frames_grid)
             total_steps = len(data_log)
+            blocked_cells_num = np.sum(grid==-1)
+            print(f"The blocked cells number is: {blocked_cells_num}")
+            blocked_ratio = blocked_cells_num/900
             for i, entry in enumerate(data_log):
                 entry["remaining_steps"] = total_steps - i - 1
+                entry["blocked_ratio"] = blocked_ratio
 
             # save_simulation_data(simulation_num, seed_value, data_log)
             return data_log

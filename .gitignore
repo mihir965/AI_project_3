@@ -1,4 +1,4 @@
 /ai_proj_3
-/data
 /Backup_working
-/simulation_log.csv
+*.csv
+*.npz
