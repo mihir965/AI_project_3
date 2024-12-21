@@ -35,7 +35,11 @@ def save_simulation_data(seed_value, total_data):
         bot_grid = [entry["bot_prob_grid"] for entry in total_data],
         rat_grid = [entry["rat_prob_grid"] for entry in total_data],
         time_step_remaining = [entry["remaining_steps"] for entry in total_data],
-        blocked_ratio = [entry["blocked_ratio"] for entry in total_data]
+        blocked_ratio = [entry["blocked_ratio"] for entry in total_data],
+        time_step = [entry["t"] for entry in total_data],
+        dist_to_target = [entry["dist_to_target"] for entry in total_data],
+        target_cell_prob = [entry["prob_target_cell"] for entry in total_data],
+        max_prob = [entry["most_probable_cell_prob"] for entry in total_data]
     )
     print(f"Simulation data saved to {filename}")
 

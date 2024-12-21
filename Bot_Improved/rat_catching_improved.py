@@ -226,16 +226,6 @@ def last_ditch_check_neighbours(bot_pos, grid_for_map, n, frames_grid, t, moving
                 return bot_pos, frames_grid, t, moving
     return bot_pos, frames_grid, t, moving
 
-def save_simulation_data(simulation_num, seed_value, data_log):
-    filename = f"simulation_{simulation_num}_seed_{seed_value}.npz"
-    np.savez_compressed(
-        filename,
-        bot_grid = [entry["bot_prob_grid"] for entry in data_log],
-        rat_grid = [entry["rat_prob_grid"] for entry in data_log],
-        time_step = [entry["t"] for entry in data_log]
-    )
-    print(f"Simulation data saved to {filename}")
-
 def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, data_log, driver_comparison): # data_log
     frames_grid = []
     grid_for_map = np.copy(grid)
@@ -263,11 +253,18 @@ def main_improved(grid, n, bot_pos, rat_pos, alpha, simulation_num, seed_value, 
         target_cell = weighted_center(target_quadrant, quadrants, prob_grid, grid_for_map, n)
         print(f"Weighted center of {target_quadrant}: {target_cell}")
 
-        data_log.append({
-            "t": t,
-            "bot_prob_grid": bot_prob_grid,
-            "rat_prob_grid": np.copy(prob_grid)
-        })
+        max_prob = np.max(prob_grid)
+
+        if target_cell and 0 <= target_cell[0] < n and 0 <= target_cell[1] < n and grid_for_map[target_cell[0]][target_cell[1]] != -1:
+            dist_to_target = manhattan_dist(bot_pos, target_cell)
+            data_log.append({
+                "t": t,
+                "bot_prob_grid": bot_prob_grid,
+                "rat_prob_grid": np.copy(prob_grid),
+                "dist_to_target": dist_to_target,
+                "prob_target_cell": prob_grid[target_cell[0]][target_cell[1]],
+                "most_probable_cell_prob": max_prob
+            })
 
         # print(f"The time step is {t}\nThe Prob grid is: \n{prob_grid}")
 

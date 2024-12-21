@@ -121,6 +121,19 @@ def update_kb_movement(move_check, dir_check, bot_kb, grid, n):
                 updated_kb_moves.append(i)
     return updated_kb_moves
 
+def compute_weighted_center(prob_grid):
+    rows, cols = prob_grid.shape
+    total_prob = np.sum(prob_grid)
+    if total_prob == 0:  # Avoid division by zero
+        return rows // 2, cols // 2  # Default to grid center
+
+    # Compute weighted average positions
+    weighted_row = sum(i * np.sum(prob_grid[i, :]) for i in range(rows)) / total_prob
+    weighted_col = sum(j * np.sum(prob_grid[:, j]) for j in range(cols)) / total_prob
+    
+    return int(round(weighted_row)), int(round(weighted_col))   
+
+
 def main_function(grid, n, bot_pos):
     print(f"Original bot position that simulation knows: {bot_pos}")
     
@@ -137,6 +150,12 @@ def main_function(grid, n, bot_pos):
 
     # Create rat_prob_grid similarly
     rat_prob_grid = init_prob_cells(grid, n, rat_cells)
+
+    weighted_center = compute_weighted_center(bot_prob_grid)
+    grid_center = (rat_prob_grid.shape[0] // 2, rat_prob_grid.shape[1] // 2)
+    dist_to_center = abs(weighted_center[0] - grid_center[0]) + abs(weighted_center[1] - grid_center[1])
+    prob_at_center = bot_prob_grid[weighted_center]
+    most_probable_cell_prob = np.max(bot_prob_grid)
 
     data_log = []
     t = 0
@@ -201,22 +220,14 @@ def main_function(grid, n, bot_pos):
         data_log.append({
             "t": t,
             "bot_prob_grid": bot_prob_grid.copy(),
-            "rat_prob_grid": rat_prob_grid.copy()
+            "rat_prob_grid": rat_prob_grid.copy(),
+            "dist_to_target": dist_to_center,
+            "prob_target_cell": prob_at_center,
+            "most_probable_cell_prob": most_probable_cell_prob
         })
 
         t += 1
         print(f"Time step: {t}")
-        # print(bot_prob_grid)
-    
-    # for i, entry in enumerate(data_log):
-    #     entry["remaining_steps"] = t - i - 1
-
-    # filename = f"./data/localization_{random.randint(0,10000)}.npz"
-    # np.savez_compressed(
-    #     filename,
-    #     bot_grid = [entry["bot_prob_grid"] for entry in data_log],
-    #     time_step_remaining = [entry["remaining_steps"] for entry in data_log]
-    # )
 
     if t==1000 or t>1000:
         return False, False
