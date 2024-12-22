@@ -11,9 +11,32 @@ from collections import defaultdict
 n = 30
 
 def run_single_simulation(alpha, simulation_num, seed_value):
-    grid = grid_init(n)
+    grid = np.loadtxt('grid.txt', dtype=int)
     bot_pos = bot_init(grid, n, 3)
     rat_pos = rat_init(grid, n, 2)
+
+    grid_array = np.array(grid)
+
+# # Define colors for each value in the grid
+#     cmap = plt.matplotlib.colors.ListedColormap(['white', 'black', 'green', 'red'])  # Colors for 0, -1, 2, 3
+#     bounds = [-1.5, -0.5, 0.5, 1.5, 3.5]  # Boundaries for -1, 0, 2, 3
+#     norm = plt.matplotlib.colors.BoundaryNorm(bounds, cmap.N)
+
+#     # Plot the grid
+#     plt.figure(figsize=(10, 10))
+#     plt.imshow(grid_array, cmap=cmap, norm=norm)
+
+#     # Add gridlines for better visualization
+#     plt.grid(color='gray', linestyle='-', linewidth=0.5)
+#     plt.xticks(np.arange(-0.5, len(grid[0]), 1), [])
+#     plt.yticks(np.arange(-0.5, len(grid), 1), [])
+#     plt.gca().set_xticks(np.arange(-0.5, len(grid[0])), minor=True)
+#     plt.gca().set_yticks(np.arange(-0.5, len(grid)), minor=True)
+#     plt.grid(which='minor', color='gray', linestyle='-', linewidth=0.5)
+
+#     # Show the plot
+#     plt.show()
+
 
     grid_for_use = np.copy(grid)
     while True:
@@ -43,7 +66,7 @@ def save_simulation_data(seed_value, total_data):
     )
     print(f"Simulation data saved to {filename}")
 
-def run_comparisons(alpha = 0.08, simulations=500):
+def run_comparisons(alpha = 0.08, simulations=5):#5000
     seed_value = 457
     np.random.seed(seed_value)
     total_data = []

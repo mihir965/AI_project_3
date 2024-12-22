@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
-def process_data():
-    data = np.load("data/seed_457_8649.npz")
+def process_data(is_test):
+    data = np.load("data/seed_457_51056.npz")
 
     bot_grid = np.array(data['bot_grid'])
     rat_grid = np.array(data['rat_grid'])
@@ -28,8 +28,11 @@ def process_data():
         max_prob.reshape(-1, 1)
     ])
 
-    # Target output
-    y = time_step_remaining
+    if is_test==True:
+        y = np.array(data['time_step_remaining'])  
+    else:
+        # Target output
+        y = time_step_remaining
 
 
     #Normalizing data
