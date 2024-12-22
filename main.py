@@ -50,6 +50,16 @@ y_train_tensor = torch.tensor(y_train, dtype=torch.float32)
 X_val_tensor = torch.tensor(X_val, dtype=torch.float32)
 y_val_tensor = torch.tensor(y_val, dtype=torch.float32)
 
+plt.hist(X_train[:, 0], bins=30, alpha=0.5, label='Train')
+plt.hist(X_val[:, 0], bins=30, alpha=0.5, label='Test')
+plt.legend()
+plt.show()
+
+print(f"Train Target Range: {y_train.min()} - {y_train.max()}")
+print(f"Test Target Range: {y_val.min()} - {y_val.max()}")
+
+
+
 # Create datasets
 train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
 val_dataset = TensorDataset(X_val_tensor, y_val_tensor)

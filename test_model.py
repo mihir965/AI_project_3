@@ -31,7 +31,7 @@ class StepPredictor(nn.Module):
 
 input_size = X.shape[1]
 model = StepPredictor(input_size)
-model.load_state_dict(torch.load('best_model.pth'))#fine_tuned_model
+model.load_state_dict(torch.load('fine_tuned_model.pth'))#fine_tuned_model best_model
 model.eval()
 
 with torch.no_grad():
@@ -42,6 +42,7 @@ results = pd.DataFrame({
     "Predicted Steps": predictions
 })
 print(results.head(20))  # Display first 20 rows
+
 
 plt.figure(figsize=(10, 6))
 plt.scatter(y, predictions, alpha=0.6, label="Predictions")

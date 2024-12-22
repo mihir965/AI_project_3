@@ -66,7 +66,7 @@ def save_simulation_data(seed_value, total_data):
     )
     print(f"Simulation data saved to {filename}")
 
-def run_comparisons(alpha = 0.08, simulations=5):#5000
+def run_comparisons(alpha = 0.08, simulations=500):#5000
     seed_value = 457
     np.random.seed(seed_value)
     total_data = []

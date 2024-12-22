@@ -26,7 +26,7 @@ X, y = process_data(False)
 
 input_size = X.shape[1]  # Make sure input size matches your dataset
 model = StepPredictor(input_size)
-model.load_state_dict(torch.load('best_model.pth'))  # Load saved weights
+model.load_state_dict(torch.load('fine_tuned_model_1.pth'))  # Load saved weights
 model.train()
 
 # Loss and optimizer
@@ -56,4 +56,4 @@ for epoch in range(epochs):
     if (epoch + 1) % 10 == 0:
         print(f"Epoch [{epoch+1}/{epochs}], Loss: {total_loss / len(train_loader):.4f}")
 
-torch.save(model.state_dict(), 'fine_tuned_model.pth')
+torch.save(model.state_dict(), 'fine_tuned_model_2.pth')

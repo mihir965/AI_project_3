@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
 def process_data(is_test):
-    data = np.load("data/seed_457_51056.npz")
+    data = np.load("data/seed_457_67152.npz")
 
     bot_grid = np.array(data['bot_grid'])
     rat_grid = np.array(data['rat_grid'])
