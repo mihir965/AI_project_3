@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
+import pandas as pd
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler
 
@@ -11,7 +12,7 @@ class GridModel(nn.Module):
     def __init__(self):
         super(GridModel, self).__init__()
 
-        # CNN path for grid 1
+        # CNN layer for grid 1
         self.cnn1 = nn.Sequential(
             nn.Conv2d(1, 16, kernel_size=3, padding=1),
             nn.ReLU(),
@@ -25,7 +26,7 @@ class GridModel(nn.Module):
             nn.Flatten()
         )
 
-        # CNN path for grid 2
+        # CNN layer for grid 2
         self.cnn2 = nn.Sequential(
             nn.Conv2d(1, 16, kernel_size=3, padding=1),
             nn.ReLU(),
@@ -68,7 +69,7 @@ class GridModel(nn.Module):
         combined = torch.cat((out1, out2, out_scalar), dim=1)
         return self.combined_fc(combined)
 
-# Load Data
+# Function to load the npz files
 def load_data(filename):
     data = np.load(filename)
     bot_grid = torch.tensor(data['bot_grid']).unsqueeze(1).float()
@@ -88,7 +89,7 @@ def load_data(filename):
     labels = torch.tensor(data['time_step_remaining']).float().unsqueeze(1)
     return TensorDataset(bot_grid, rat_grid, scalar_features, labels)
 
-# Train Model
+# This will train the model
 def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, num_epochs=10):
     for epoch in range(num_epochs):
         model.train()
@@ -102,6 +103,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
             optimizer.step()
             train_loss += loss.item()
 
+        # This puts the model into evaluation mode for validation
         model.eval()
         val_loss = 0.0
         with torch.no_grad():
@@ -113,7 +115,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
         scheduler.step(val_loss / len(val_loader))
         print(f"Epoch [{epoch+1}/{num_epochs}], Train Loss: {train_loss / len(train_loader):.4f}, Val Loss: {val_loss / len(val_loader):.4f}")
 
-# Test Model
+# Testing Model with new data
 def test_model(model, dataloader):
     model.eval()
     predictions, actuals = [], []
@@ -129,17 +131,11 @@ def test_model(model, dataloader):
     r2 = r2_score(actuals, predictions)
     print(f"Test Results - MAE: {mae:.4f}, R²: {r2:.4f}")
 
-    # Save predictions and actuals to a file
-    np.savez_compressed(
-        'test_results.npz',
-        predictions=predictions,
-        actuals=actuals
-    )
+    results_df = pd.DataFrame({'Prediction': predictions, 'Actual': actuals})
+    results_df.to_csv('test_results.csv', index=False)
 
-    # Print sample results
     print("Sample Predictions vs Actual Values:")
-    for i in range(10):
-        print(f"Prediction: {predictions[i]:.4f}, Actual: {actuals[i]:.4f}")
+    print(results_df.head(10))
 
     return predictions, actuals
 
@@ -151,7 +147,6 @@ def load_model(model, path):
     model.load_state_dict(torch.load(path))
     model.eval()
 
-# Main
 if __name__ == '__main__':
     model = GridModel()
     learning_rate = 0.001
@@ -161,7 +156,7 @@ if __name__ == '__main__':
     criterion = nn.SmoothL1Loss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
 
-    dataset = load_data('./data/seed_457_95715.npz')
+    dataset = load_data('./data/seed_457_35249.npz')
     val_size = int(0.2 * len(dataset))
     train_size = len(dataset) - val_size
     train_dataset, val_dataset = torch.utils.data.random_split(dataset, [train_size, val_size])
