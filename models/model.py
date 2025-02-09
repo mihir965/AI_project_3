@@ -7,7 +7,6 @@ import pandas as pd
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler
 
-# Model Definition
 class GridModel(nn.Module):
     def __init__(self):
         super(GridModel, self).__init__()
